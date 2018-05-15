@@ -22,37 +22,48 @@
     gdppercapita2 <- html_nodes(gdppercapita, css = "table")
     gdppercapitatable <- as.tibble(html_table(gdppercapita2, header = TRUE, fill = TRUE)[[5]])
 
+    pop <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations)")
+    pop2 <- html_nodes(pop, css = "table")
+    poptable <- as.tibble(html_table(pop2, header = TRUE, fill = TRUE)[[3]])
+
     mastertable <- gdppercapitatable%>%
       left_join(governmentbudgettable, by = "Country")%>%
-      select("Country", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Year")%>%
+      left_join(poptable, by = c("Country" = "Country or area"))%>%
+      select("Country", "Population\n(1 July 2017)[3]", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Year")%>%
       left_join(governmentsystemtable, by = c("Country" = "Name"))%>%
       left_join(opiateusetable, by = c("Country" = "Country or Entity"))%>%
       left_join(cannabisusetable, by = c("Country" = "Country or entity"))%>%
       left_join(cocaineusetable, by = c("Country" = "Country or entity"))%>%
-      select("Country", "Year.x", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Constitutional form", "Head of state", "Annual prevalence (percent).x", "Annual prevalence\n(percent)","Annual prevalence (percent).y")%>%
-      rename("Head_of_State" = "Head of state", "Constitution_Form" = "Constitutional form", "Revenues" = "Revenues", "GDP_per_Capita" = "US$", "Expenditures" = "Expenditures", "Surplus_or_Deficit" = "Surplus (or deficit)","Year" = "Year.x", "Opiate_Prevalence" = "Annual prevalence (percent).x", "Cannabis_Prevalence" = "Annual prevalence\n(percent)", "Cocaine_Prevalence" = "Annual prevalence (percent).y")
+      select("Country", "Year.x", "Population\n(1 July 2017)[3]", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Constitutional form", "Head of state", "Annual prevalence (percent).x", "Annual prevalence\n(percent)","Annual prevalence (percent).y")%>%
+      rename("Population" = "Population\n(1 July 2017)[3]","Head_of_State" = "Head of state", "Constitutional_Form" = "Constitutional form", "Revenues" = "Revenues", "GDP_per_Capita" = "US$", "Expenditures" = "Expenditures", "Surplus_or_Deficit" = "Surplus (or deficit)","Year" = "Year.x", "Opiate_Prevalence" = "Annual prevalence (percent).x", "Cannabis_Prevalence" = "Annual prevalence\n(percent)", "Cocaine_Prevalence" = "Annual prevalence (percent).y")
     mastertable
 
-    ## # A tibble: 219 x 11
-    ##    Country   Year    GDP_per_Capita Revenues Expenditures Surplus_or_Defi…
-    ##    <chr>     <chr>   <chr>          <chr>    <chr>        <chr>           
-    ##  1 Monaco    2011 e… 168,004        915      973          -59             
-    ##  2 Liechten… 2012 e… 164,437        995      890          105             
-    ##  3 Luxembou… 2016 e… 101,835        25,850   25,520       330             
-    ##  4 Bermuda   2016 e… 99,363         960      1,154        -194            
-    ##  5 Switzerl… 2016 e… 79,609         215,900  213,400      2,500           
-    ##  6 Macau     2016 e… 73,187         12,120   7,004        5,116           
-    ##  7 Norway    2016 e… 70,617         199,800  188,800      11,000          
-    ##  8 Ireland   2016 e… 64,497         78,470   80,860       -2,390          
-    ##  9 Cayman I… 2016 e… 63,261         860      742          118             
-    ## 10 Iceland   2016 e… 60,966         10,350   7,911        2,439           
-    ## # ... with 209 more rows, and 5 more variables: Constitution_Form <chr>,
-    ## #   Head_of_State <chr>, Opiate_Prevalence <dbl>,
-    ## #   Cannabis_Prevalence <dbl>, Cocaine_Prevalence <dbl>
+    ## # A tibble: 219 x 12
+    ##    Country      Year       Population GDP_per_Capita Revenues Expenditures
+    ##    <chr>        <chr>      <chr>      <chr>          <chr>    <chr>       
+    ##  1 Monaco       2011 est.… 38,695     168,004        915      973         
+    ##  2 Liechtenste… 2012 est.… 37,922     164,437        995      890         
+    ##  3 Luxembourg   2016 est.… 583,455    101,835        25,850   25,520      
+    ##  4 Bermuda      2016 est.… 61,349     99,363         960      1,154       
+    ##  5 Switzerland  2016 est.… 8,476,005  79,609         215,900  213,400     
+    ##  6 Macau        2016 est.… 622,567    73,187         12,120   7,004       
+    ##  7 Norway       2016 est.… <NA>       70,617         199,800  188,800     
+    ##  8 Ireland      2016 est.… 4,761,657  64,497         78,470   80,860      
+    ##  9 Cayman Isla… 2016 est.… 61,559     63,261         860      742         
+    ## 10 Iceland      2016 est.… 335,025    60,966         10,350   7,911       
+    ## # ... with 209 more rows, and 6 more variables: Surplus_or_Deficit <chr>,
+    ## #   Constitutional_Form <chr>, Head_of_State <chr>,
+    ## #   Opiate_Prevalence <dbl>, Cannabis_Prevalence <dbl>,
+    ## #   Cocaine_Prevalence <dbl>
 
-    #mastertable%>%
-    #  group_by(Constitution_Form)%>%
-    #  summarize(average_GDPpC = mean(GDP_per_Capita, na.rm=TRUE))
+    grouped <- mastertable%>%
+      group_by(Constitutional_Form)%>%
+      summarize(average_GDPpC = mean(parse_number(GDP_per_Capita), na.rm=TRUE))
+    grouped[c(1,2,4),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_GDPpC))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-2-1.png)
 
     mastertable%>%
       ggplot(mapping = aes(x = GDP_per_Capita))+
@@ -60,7 +71,7 @@
 
     ## Warning: Removed 94 rows containing missing values (geom_point).
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-2-2.png)
 
     mastertable%>%
       ggplot(mapping = aes(x = GDP_per_Capita))+
@@ -68,7 +79,7 @@
 
     ## Warning: Removed 68 rows containing missing values (geom_point).
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-2.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-2-3.png)
 
     mastertable%>%
       ggplot(mapping = aes(x = GDP_per_Capita))+
@@ -76,4 +87,4 @@
 
     ## Warning: Removed 114 rows containing missing values (geom_point).
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-3.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-2-4.png)

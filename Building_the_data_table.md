@@ -121,6 +121,27 @@ Web Scraping Ideas
     ## 10 7     Iceland        60,966 
     ## # ... with 207 more rows
 
+    pop <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations)")
+    pop2 <- html_nodes(pop, css = "table")
+    poptable <- as.tibble(html_table(pop2, header = TRUE, fill = TRUE)[[3]])
+    poptable
+
+    ## # A tibble: 234 x 7
+    ##    Rank  `Country or area` `UN continental\nregio… `UN statistical\nregio…
+    ##    <chr> <chr>             <chr>                   <chr>                  
+    ##  1 —     World             —                       —                      
+    ##  2 1     China[a]          Asia                    Eastern Asia           
+    ##  3 2     India             Asia                    Southern Asia          
+    ##  4 3     United States     Americas                Northern America       
+    ##  5 4     Indonesia         Asia                    South-eastern Asia     
+    ##  6 5     Brazil            Americas                South America          
+    ##  7 6     Pakistan          Asia                    Southern Asia          
+    ##  8 7     Nigeria           Africa                  Western Africa         
+    ##  9 8     Bangladesh        Asia                    Southern Asia          
+    ## 10 9     Russia            Europe                  Eastern Europe         
+    ## # ... with 224 more rows, and 3 more variables: `Population\n(1 July
+    ## #   2016)[3]` <chr>, `Population\n(1 July 2017)[3]` <chr>, Change <chr>
+
     # gdp <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)")
     # gdp2 <- html_nodes(gdp, css = "table")
     # gdptable <- html_table(gdp2, header = TRUE, fill = TRUE)[[5]]

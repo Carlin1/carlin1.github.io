@@ -38,22 +38,31 @@ governmentbudgettable <- as.tibble(html_table(governmentbudget2, header = TRUE, 
 gdppercapita <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)_per_capita")
 gdppercapita2 <- html_nodes(gdppercapita, css = "table")
 gdppercapitatable <- as.tibble(html_table(gdppercapita2, header = TRUE, fill = TRUE)[[5]])
+
+pop <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations)")
+pop2 <- html_nodes(pop, css = "table")
+poptable <- as.tibble(html_table(pop2, header = TRUE, fill = TRUE)[[3]])
 ```
 
 ```{r}
 mastertable <- gdppercapitatable%>%
   left_join(governmentbudgettable, by = "Country")%>%
-  select("Country", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Year")%>%
+  left_join(poptable, by = c("Country" = "Country or area"))%>%
+  select("Country", "Population\n(1 July 2017)[3]", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Year")%>%
   left_join(governmentsystemtable, by = c("Country" = "Name"))%>%
   left_join(opiateusetable, by = c("Country" = "Country or Entity"))%>%
   left_join(cannabisusetable, by = c("Country" = "Country or entity"))%>%
   left_join(cocaineusetable, by = c("Country" = "Country or entity"))%>%
-  select("Country", "Year.x", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Constitutional form", "Head of state", "Annual prevalence (percent).x", "Annual prevalence\n(percent)","Annual prevalence (percent).y")%>%
-  rename("Head_of_State" = "Head of state", "Constitution_Form" = "Constitutional form", "Revenues" = "Revenues", "GDP_per_Capita" = "US$", "Expenditures" = "Expenditures", "Surplus_or_Deficit" = "Surplus (or deficit)","Year" = "Year.x", "Opiate_Prevalence" = "Annual prevalence (percent).x", "Cannabis_Prevalence" = "Annual prevalence\n(percent)", "Cocaine_Prevalence" = "Annual prevalence (percent).y")
+  select("Country", "Year.x", "Population\n(1 July 2017)[3]", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Constitutional form", "Head of state", "Annual prevalence (percent).x", "Annual prevalence\n(percent)","Annual prevalence (percent).y")%>%
+  rename("Population" = "Population\n(1 July 2017)[3]","Head_of_State" = "Head of state", "Constitutional_Form" = "Constitutional form", "Revenues" = "Revenues", "GDP_per_Capita" = "US$", "Expenditures" = "Expenditures", "Surplus_or_Deficit" = "Surplus (or deficit)","Year" = "Year.x", "Opiate_Prevalence" = "Annual prevalence (percent).x", "Cannabis_Prevalence" = "Annual prevalence\n(percent)", "Cocaine_Prevalence" = "Annual prevalence (percent).y")
 mastertable
-#mastertable%>%
-#  group_by(Constitution_Form)%>%
-#  summarize(average_GDPpC = mean(GDP_per_Capita, na.rm=TRUE))
+
+grouped <- mastertable%>%
+  group_by(Constitutional_Form)%>%
+  summarize(average_GDPpC = mean(parse_number(GDP_per_Capita), na.rm=TRUE))
+grouped[c(1,2,4),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_GDPpC))
 
 mastertable%>%
   ggplot(mapping = aes(x = GDP_per_Capita))+

@@ -47,6 +47,11 @@ gdppercapita2 <- html_nodes(gdppercapita, css = "table")
 gdppercapitatable <- as.tibble(html_table(gdppercapita2, header = TRUE, fill = TRUE)[[5]])
 gdppercapitatable
 
+pop <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations)")
+pop2 <- html_nodes(pop, css = "table")
+poptable <- as.tibble(html_table(pop2, header = TRUE, fill = TRUE)[[3]])
+poptable
+
 # gdp <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)")
 # gdp2 <- html_nodes(gdp, css = "table")
 # gdptable <- html_table(gdp2, header = TRUE, fill = TRUE)[[5]]
