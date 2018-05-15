@@ -1,1 +1,67 @@
+    opiateuse <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_prevalence_of_opiates_use")
+    opiateuse2 <- html_nodes(opiateuse, css = "table")
+    opiateusetable <- as.tibble(html_table(opiateuse2, header = TRUE, fill = TRUE)[[1]])
 
+    cannabisuse <- read_html("https://en.wikipedia.org/wiki/Annual_cannabis_use_by_country")
+    cannabisuse2 <- html_nodes(cannabisuse, css = "table")
+    cannabisusetable <- as.tibble(html_table(cannabisuse2, header = TRUE, fill = TRUE)[[1]])
+
+    cocaineuse <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_prevalence_of_cocaine_use")
+    cocaineuse2 <- html_nodes(cocaineuse, css = "table")
+    cocaineusetable <- as.tibble(html_table(cocaineuse2, header = TRUE, fill = TRUE)[[1]])
+
+    governmentsystem <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government")
+    governmentsystem2 <- html_nodes(governmentsystem, css = "table")
+    governmentsystemtable <- as.tibble(html_table(governmentsystem2, header = TRUE, fill = TRUE)[[6]])
+
+    governmentbudget <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_government_budget")
+    governmentbudget2 <- html_nodes(governmentbudget, css = "table")
+    governmentbudgettable <- as.tibble(html_table(governmentbudget2, header = TRUE, fill = TRUE)[[1]])
+
+    gdppercapita <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)_per_capita")
+    gdppercapita2 <- html_nodes(gdppercapita, css = "table")
+    gdppercapitatable <- as.tibble(html_table(gdppercapita2, header = TRUE, fill = TRUE)[[5]])
+
+    mastertable <- gdppercapitatable%>%
+      left_join(governmentbudgettable, by = "Country")%>%
+      select("Country", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Year")%>%
+      left_join(governmentsystemtable, by = c("Country" = "Name"))%>%
+      left_join(opiateusetable, by = c("Country" = "Country or Entity"))%>%
+      left_join(cannabisusetable, by = c("Country" = "Country or entity"))%>%
+      left_join(cocaineusetable, by = c("Country" = "Country or entity"))%>%
+      select("Country", "Year.x", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Constitutional form", "Head of state", "Annual prevalence (percent).x", "Annual prevalence\n(percent)","Annual prevalence (percent).y")%>%
+      rename("Head_of_State" = "Head of state", "Constitution_Form" = "Constitutional form", "Revenues" = "Revenues", "GDP_per_Capita" = "US$", "Expenditures" = "Expenditures", "Surplus_or_Deficit" = "Surplus (or deficit)","Year" = "Year.x", "Opiate_Prevalence" = "Annual prevalence (percent).x", "Cannabis_Prevalence" = "Annual prevalence\n(percent)", "Cocaine_Prevalence" = "Annual prevalence (percent).y")
+
+    #mastertable%>%
+    #  group_by(Constitution_Form)%>%
+    #  summarize(average_GDPpC = mean(GDP_per_Capita, na.rm=TRUE))
+
+    OpiatevGDP <- mastertable%>%
+      ggplot(mapping = aes(x = GDP_per_Capita))+
+      geom_point(mapping = aes(y = Opiate_Prevalence))
+
+    OpiatevGDP
+
+    ## Warning: Removed 94 rows containing missing values (geom_point).
+
+![](index_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+
+    CannabisvGDP <- mastertable%>%
+      ggplot(mapping = aes(x = GDP_per_Capita))+
+      geom_point(mapping = aes(y = Cannabis_Prevalence))
+
+    CannabisvGDP
+
+    ## Warning: Removed 68 rows containing missing values (geom_point).
+
+![](index_files/figure-markdown_strict/unnamed-chunk-2-2.png)
+
+    CocainevGDP <- mastertable%>%
+      ggplot(mapping = aes(x = GDP_per_Capita))+
+      geom_point(mapping = aes(y = Cocaine_Prevalence))
+
+    CocainevGDP
+
+    ## Warning: Removed 114 rows containing missing values (geom_point).
+
+![](index_files/figure-markdown_strict/unnamed-chunk-2-3.png)
