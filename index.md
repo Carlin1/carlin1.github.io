@@ -56,14 +56,69 @@
     ## #   Opiate_Prevalence <dbl>, Cannabis_Prevalence <dbl>,
     ## #   Cocaine_Prevalence <dbl>
 
-    grouped <- mastertable%>%
+    groupedConstituation <- mastertable%>%
       group_by(Constitutional_Form)%>%
-      summarize(average_GDPpC = mean(parse_number(GDP_per_Capita), na.rm=TRUE))
-    grouped[c(1,2,4),]%>%
+      summarize(average_GDPpC = mean(parse_number(GDP_per_Capita), na.rm=TRUE),
+                average_Opiate = mean(parse_number(Opiate_Prevalence), na.rm=TRUE),
+                average_Cannabis = mean(parse_number(Cannabis_Prevalence), na.rm=TRUE),
+                average_Cocaine = mean(parse_number(Cocaine_Prevalence), na.rm=TRUE))
+
+    groupedHead <- mastertable%>%
+      group_by(Head_of_State)%>%
+      summarize(average_GDPpC2 = mean(parse_number(GDP_per_Capita), na.rm=TRUE),
+                average_Opiate2 = mean(parse_number(Opiate_Prevalence), na.rm=TRUE),
+                average_Cannabis2 = mean(parse_number(Cannabis_Prevalence), na.rm=TRUE),
+                average_Cocaine2 = mean(parse_number(Cocaine_Prevalence), na.rm=TRUE))
+
+
+
+    groupedHead[c(1,2),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_GDPpC2))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+
+    groupedHead[c(1,2),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_Opiate2))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-2.png)
+
+    groupedHead[c(1,2),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_Cannabis2))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-3.png)
+
+    groupedHead[c(1,2),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_Cocaine2))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-4.png)
+
+    groupedConstituation[c(1,2,4),]%>%
       ggplot()+
       geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_GDPpC))
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-3-5.png)
+
+    groupedConstituation[c(1,2,4),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_Opiate))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-6.png)
+
+    groupedConstituation[c(1,2,4),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_Cannabis))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-7.png)
+
+    groupedConstituation[c(1,2,4),]%>%
+      ggplot()+
+      geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_Cocaine))
+
+![](index_files/figure-markdown_strict/unnamed-chunk-3-8.png)
 
     mastertable%>%
       ggplot(mapping = aes(x = GDP_per_Capita))+
@@ -71,7 +126,7 @@
 
     ## Warning: Removed 94 rows containing missing values (geom_point).
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-2.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-3-9.png)
 
     mastertable%>%
       ggplot(mapping = aes(x = GDP_per_Capita))+
@@ -79,7 +134,7 @@
 
     ## Warning: Removed 68 rows containing missing values (geom_point).
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-3.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-3-10.png)
 
     mastertable%>%
       ggplot(mapping = aes(x = GDP_per_Capita))+
@@ -87,4 +142,4 @@
 
     ## Warning: Removed 114 rows containing missing values (geom_point).
 
-![](index_files/figure-markdown_strict/unnamed-chunk-2-4.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-3-11.png)

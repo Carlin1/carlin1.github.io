@@ -56,26 +56,70 @@ mastertable <- gdppercapitatable%>%
   select("Country", "Year.x", "Population\n(1 July 2017)[3]", "US$", "Revenues", "Expenditures", "Surplus (or deficit)", "Constitutional form", "Head of state", "Annual prevalence (percent).x", "Annual prevalence\n(percent)","Annual prevalence (percent).y")%>%
   rename("Population" = "Population\n(1 July 2017)[3]","Head_of_State" = "Head of state", "Constitutional_Form" = "Constitutional form", "Revenues" = "Revenues", "GDP_per_Capita" = "US$", "Expenditures" = "Expenditures", "Surplus_or_Deficit" = "Surplus (or deficit)","Year" = "Year.x", "Opiate_Prevalence" = "Annual prevalence (percent).x", "Cannabis_Prevalence" = "Annual prevalence\n(percent)", "Cocaine_Prevalence" = "Annual prevalence (percent).y")
 mastertable
+```
 
-grouped <- mastertable%>%
+```{r}
+groupedConstituation <- mastertable%>%
   group_by(Constitutional_Form)%>%
-  summarize(average_GDPpC = mean(parse_number(GDP_per_Capita), na.rm=TRUE))
-grouped[c(1,2,4),]%>%
+  summarize(average_GDPpC = mean(parse_number(GDP_per_Capita), na.rm=TRUE),
+            average_Opiate = mean(parse_number(Opiate_Prevalence), na.rm=TRUE),
+            average_Cannabis = mean(parse_number(Cannabis_Prevalence), na.rm=TRUE),
+            average_Cocaine = mean(parse_number(Cocaine_Prevalence), na.rm=TRUE))
+
+groupedHead <- mastertable%>%
+  group_by(Head_of_State)%>%
+  summarize(average_GDPpC2 = mean(parse_number(GDP_per_Capita), na.rm=TRUE),
+            average_Opiate2 = mean(parse_number(Opiate_Prevalence), na.rm=TRUE),
+            average_Cannabis2 = mean(parse_number(Cannabis_Prevalence), na.rm=TRUE),
+            average_Cocaine2 = mean(parse_number(Cocaine_Prevalence), na.rm=TRUE))
+
+
+
+groupedHead[c(1,2),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_GDPpC2))
+
+groupedHead[c(1,2),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_Opiate2))
+
+groupedHead[c(1,2),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_Cannabis2))
+
+groupedHead[c(1,2),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Head_of_State, y = average_Cocaine2))
+
+
+
+groupedConstituation[c(1,2,4),]%>%
   ggplot()+
   geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_GDPpC))
+
+groupedConstituation[c(1,2,4),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_Opiate))
+
+groupedConstituation[c(1,2,4),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_Cannabis))
+
+groupedConstituation[c(1,2,4),]%>%
+  ggplot()+
+  geom_bar(stat = "identity", mapping = aes(x = Constitutional_Form, y = average_Cocaine))
+
+
 
 mastertable%>%
   ggplot(mapping = aes(x = GDP_per_Capita))+
   geom_point(mapping = aes(y = Opiate_Prevalence))
 
-
 mastertable%>%
   ggplot(mapping = aes(x = GDP_per_Capita))+
   geom_point(mapping = aes(y = Cannabis_Prevalence))
 
-
 mastertable%>%
   ggplot(mapping = aes(x = GDP_per_Capita))+
   geom_point(mapping = aes(y = Cocaine_Prevalence))
-
 ```
